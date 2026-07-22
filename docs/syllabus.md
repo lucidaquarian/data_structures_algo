@@ -39,7 +39,6 @@ NN-topic/
 ├── README.md          # the lesson, written in the three tiers above
 ├── <structure>.py     # from-scratch implementation — the single source of truth
 ├── test_<structure>.py# pytest tests that double as usage examples
-├── exercises.md       # graded problems (+ solutions)
 └── visualize.html     # split-view: animation ⇆ the embedded, synced program
 ```
 
@@ -52,7 +51,6 @@ And each lesson is taught in the same rhythm:
 5. **Visualize** — interactive page; step through operations while the code
    highlights.
 6. **Trade-offs** — when to use it, and what to use instead.
-7. **Exercises** — 3–5 problems, solutions provided.
 
 ### The signature feature: the program lives inside the visualization
 
