@@ -1,0 +1,13 @@
+# Node dependencies (only used to vendor libs / run the smoke test locally)
+node_modules/
+package-lock.json
+package.json
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Local scratch / build noise
+*.log
+scratchpad-*.png
