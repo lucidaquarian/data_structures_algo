@@ -24,21 +24,16 @@ Complexity summary (n = number of elements):
     delete (middle) : O(n)             (must shift later elements left)
 """
 
-from typing import Any, Iterator
+from typing import Any
 
 
 class DynamicArray:
     """A resizable array with amortized O(1) append."""
 
     def __init__(self) -> None:
-        self._capacity: int = 1                       # slots allocated
-        self._size: int = 0                           # slots in use
-        self._data: list = self._make_store(self._capacity)
-
-    @staticmethod
-    def _make_store(capacity: int) -> list:
-        """Allocate a fresh backing store of ``capacity`` empty slots."""
-        return [None] * capacity
+        self._capacity = 1                 # how many slots we've allocated
+        self._size = 0                     # how many slots are actually used
+        self._data = [None] * self._capacity   # the backing store
 
     def __len__(self) -> int:
         """Number of elements stored. O(1)."""
@@ -104,7 +99,7 @@ class DynamicArray:
 
     def _resize(self, new_capacity: int) -> None:
         """Move every element into a new, larger backing store. O(n)."""
-        new_store = self._make_store(new_capacity)
+        new_store = [None] * new_capacity
         for i in range(self._size):
             new_store[i] = self._data[i]
         self._data = new_store
@@ -115,7 +110,7 @@ class DynamicArray:
         if index < 0 or index >= self._size:
             raise IndexError("index out of range")
 
-    def __iter__(self) -> Iterator[Any]:
+    def __iter__(self):
         """Yield the elements in order. O(n)."""
         for i in range(self._size):
             yield self._data[i]

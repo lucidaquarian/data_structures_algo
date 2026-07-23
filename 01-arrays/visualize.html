@@ -37,21 +37,16 @@ Complexity summary (n = number of elements):
     delete (middle) : O(n)             (must shift later elements left)
 """
 
-from typing import Any, Iterator
+from typing import Any
 
 
 class DynamicArray:
     """A resizable array with amortized O(1) append."""
 
     def __init__(self) -> None:
-        self._capacity: int = 1                       # slots allocated
-        self._size: int = 0                           # slots in use
-        self._data: list = self._make_store(self._capacity)
-
-    @staticmethod
-    def _make_store(capacity: int) -> list:
-        """Allocate a fresh backing store of ``capacity`` empty slots."""
-        return [None] * capacity
+        self._capacity = 1                 # how many slots we've allocated
+        self._size = 0                     # how many slots are actually used
+        self._data = [None] * self._capacity   # the backing store
 
     def __len__(self) -> int:
         """Number of elements stored. O(1)."""
@@ -117,7 +112,7 @@ class DynamicArray:
 
     def _resize(self, new_capacity: int) -> None:
         """Move every element into a new, larger backing store. O(n)."""
-        new_store = self._make_store(new_capacity)
+        new_store = [None] * new_capacity
         for i in range(self._size):
             new_store[i] = self._data[i]
         self._data = new_store
@@ -128,7 +123,7 @@ class DynamicArray:
         if index < 0 or index >= self._size:
             raise IndexError("index out of range")
 
-    def __iter__(self) -> Iterator[Any]:
+    def __iter__(self):
         """Yield the elements in order. O(n)."""
         for i in range(self._size):
             yield self._data[i]
@@ -138,63 +133,77 @@ class DynamicArray:
         return f"DynamicArray([{items}], size={self._size}, capacity={self._capacity})"
 </script>
 
+<div class="wrap">
 <header class="course-header">
   <div class="crumb">Data Structures · Module 01</div>
   <h1>Dynamic Array</h1>
   <p>
     Run an operation on the left and watch the exact line of the program on the
-    right light up as it executes. The dashed boxes are allocated but unused
-    slots (capacity); the solid boxes are stored elements (size).
+    right light up as it executes. Dashed boxes are allocated but unused slots
+    (the <b>capacity</b>); solid tiles are stored elements (the <b>size</b>).
   </p>
 </header>
 
 <div class="split">
   <!-- LEFT: the animation -->
   <section class="card">
-    <h2>Animation</h2>
+    <h2><span class="dot"></span>Animation</h2>
     <div class="body">
-      <div class="controls">
-        <label>value <input id="val" value="7" /></label>
-        <label>index <input id="idx" value="0" /></label>
-        <button data-op="append" class="primary">append(value)</button>
-        <button data-op="insert">insert(index, value)</button>
-        <button data-op="pop">pop()</button>
-        <button data-op="get">get(index)</button>
-        <button data-op="delete">delete(index)</button>
-        <button data-op="reset">reset</button>
+      <div class="toolbar">
+        <div class="field">
+          <label for="val">value</label>
+          <input id="val" value="7" />
+        </div>
+        <div class="field">
+          <label for="idx">index</label>
+          <input id="idx" value="0" />
+        </div>
+        <div class="ops">
+          <button data-op="append" class="primary">append(value)</button>
+          <button data-op="insert">insert(index, value)</button>
+          <button data-op="pop">pop()</button>
+          <button data-op="get">get(index)</button>
+          <button data-op="delete">delete(index)</button>
+          <button data-op="reset" class="ghost">reset</button>
+        </div>
       </div>
 
-      <svg id="svg" class="viz" viewBox="0 0 320 130" role="img"
-           aria-label="dynamic array visualization"></svg>
+      <div class="stage">
+        <svg id="svg" class="viz" viewBox="0 0 320 150" role="img"
+             aria-label="dynamic array visualization"></svg>
+      </div>
 
       <div class="readout">
-        <span class="stat">size <b id="r-size">0</b></span>
-        <span class="stat">capacity <b id="r-cap">1</b></span>
-        <span class="stat">load factor <b id="r-load">0.00</b></span>
+        <span class="stat size"><span class="k">size</span><span class="v" id="r-size">0</span></span>
+        <span class="stat cap"><span class="k">capacity</span><span class="v" id="r-cap">1</span></span>
+        <span class="stat"><span class="k">load factor</span><span class="v" id="r-load">0.00</span></span>
       </div>
 
       <div class="legend">
-        <span class="key"><span class="swatch" style="border-color:var(--slot-stroke);background:var(--slot-fill)"></span>allocated slot</span>
-        <span class="key"><span class="swatch" style="border-color:var(--pulse-read)"></span>read</span>
-        <span class="key"><span class="swatch" style="border-color:var(--pulse-write)"></span>write</span>
-        <span class="key"><span class="swatch" style="border-color:var(--pulse-new)"></span>inserted</span>
-        <span class="key"><span class="swatch" style="border-color:var(--pulse-copy)"></span>copied on resize</span>
+        <span class="key"><span class="swatch slot"></span>allocated slot</span>
+        <span class="key"><span class="swatch" style="border-color:var(--op-read)"></span>read</span>
+        <span class="key"><span class="swatch" style="border-color:var(--op-write)"></span>write</span>
+        <span class="key"><span class="swatch" style="border-color:var(--op-new)"></span>inserted</span>
+        <span class="key"><span class="swatch" style="border-color:var(--op-copy)"></span>copied on resize</span>
       </div>
 
       <div class="caption" id="caption">
-        Pick an operation to begin. <span class="step-no"></span>
+        <span>Pick an operation above to begin.</span>
       </div>
 
       <div class="playbar">
-        <button id="play">▶ Play</button>
+        <button id="play" class="primary">▶ Play</button>
         <button id="stepBtn">⏭ Step</button>
-        <label class="speed">
-          <input type="checkbox" id="auto" checked /> auto-play
+        <span class="grow"></span>
+        <label class="switch">
+          <input type="checkbox" id="auto" checked />
+          <span class="track"></span>
+          auto-play
         </label>
         <label class="speed">
           speed
           <input type="range" id="speed" min="0.5" max="3" step="0.5" value="1" />
-          <span id="speedVal">1×</span>
+          <span class="val" id="speedVal">1×</span>
         </label>
       </div>
     </div>
@@ -202,9 +211,10 @@ class DynamicArray:
 
   <!-- RIGHT: the program -->
   <section class="card">
-    <h2>dynamic_array.py</h2>
+    <h2><span class="dot"></span>dynamic_array.py</h2>
     <div class="code-panel" id="code"></div>
   </section>
+</div>
 </div>
 
 <script>
@@ -213,8 +223,8 @@ class DynamicArray:
 
     if (!window.d3 || !window.anime) {
       document.getElementById("caption").textContent =
-        "This visualization needs D3 and anime.js (loaded from a CDN). " +
-        "Connect to the internet and reload.";
+        "Could not load D3 / anime.js from shared/viz/vendor/. " +
+        "Make sure you opened this file from inside the repository.";
     }
 
     // --- source + panels ---------------------------------------------------
@@ -431,7 +441,14 @@ class DynamicArray:
     const stepper = new Stepper({
       codePanel,
       onCaption: (text, i, total) => {
-        caption.innerHTML = `${text} <span class="step-no">step ${i} / ${total}</span>`;
+        caption.innerHTML = "";
+        const pill = document.createElement("span");
+        pill.className = "step-pill";
+        pill.textContent = `${i}/${total}`;
+        const body = document.createElement("span");
+        body.textContent = text; // set as text — captions contain "<"
+        caption.appendChild(pill);
+        caption.appendChild(body);
       },
       onRunState: ({ playing, atEnd, loaded }) => {
         playBtn.textContent = playing ? "⏸ Pause" : "▶ Play";
@@ -467,7 +484,7 @@ class DynamicArray:
       stepper.load([]);
       codePanel.clear();
       reset();
-      caption.innerHTML = 'Reset. Pick an operation to begin. <span class="step-no"></span>';
+      caption.innerHTML = "<span>Reset. Pick an operation above to begin.</span>";
     };
 
     playBtn.onclick = () => (stepper.playing ? stepper.pause() : stepper.play());
